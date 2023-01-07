@@ -131,11 +131,13 @@ The setup is completed, but you still need to perform initialization and install
 
 ```
 C:\Server\bin\mysql-8.0\bin\mysqld --initialize-insecure --user=root
-
+```
+```
 C:\Server\bin\mysql-8.0\bin\mysqld --install
 ```
+```
 net start mysql
-
+```
 
 At the end of this process, automatically generated files should appear in the C:\Server\data\DB\data\ directory:
 
