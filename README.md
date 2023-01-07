@@ -26,6 +26,7 @@ https://aka.ms/vs/17/release/VC_redist.x64.exe
 ## Create the structure of the web server
 
 C:.
+
 ├───bin
 
 │   ├───-Apache24
@@ -56,6 +57,7 @@ C:.
 ## Installing Apache 2.4
 
 Unzip the contents of the downloaded archive (to be more precise, only the Apache24 directory) to C:\Server\bin\.
+
 Go to the c:\Server\bin\Apache24\conf\ directory and open the httpd.conf file with any text editor.
 
 Replace: 	Define SRVROOT "c:/Apache24"
@@ -106,3 +108,133 @@ c:\Server\bin\Apache24\bin\httpd.exe -k install
 ```
 c:\Server\bin\Apache24\bin\httpd.exe -k start
 ```
+
+## Installing and configuring MySQL 8.0
+
+Unpack the MySQL files into the bin directory (from the mysql-8.0.28-winx64.zip archive). Rename the mysql-8.0.28-winx64 folder to mysql-8.0 (for brevity). By the way, the unpacked mysql-8.0 folder takes up about 800 megabytes!
+
+We go into this folder and create the my.ini file there. Now open this file with any text editor.
+
+Add the following lines there:
+
+[mysqld]
+
+```
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+datadir="c:/Server/data/DB/data/"
+default_authentication_plugin=mysql_native_password
+```
+
+Save and close it.
+
+The setup is completed, but you still need to perform initialization and installation, for this we open the command line as an administrator and sequentially enter there:
+
+```
+C:\Server\bin\mysql-8.0\bin\mysqld --initialize-insecure --user=root
+
+C:\Server\bin\mysql-8.0\bin\mysqld --install
+```
+net start mysql
+
+
+At the end of this process, automatically generated files should appear in the C:\Server\data\DB\data\ directory:
+
+The MySQL service will now start every time you turn on Windows.
+
+## Installing and configuring PHP 8
+
+In the c:\Server\bin\ folder, create a PHP directory and copy the contents of the php-8.1.2-Win32-vs16-x64.zip archive into it.
+
+In the c:\Server\bin\Apache24\conf\httpd.conf file, add the lines at the very end
+
+```
+PHPIniDir "C:/Server/bin/PHP"
+AddHandler application/x-httpd-php .php
+LoadModule php_module "C:/Server/bin/php/php8apache2_4.dll"
+```
+
+Then restart Apache
+```c:\Server\bin\Apache24\bin\httpd.exe -k restart```
+
+In the directory c:\Server\data\htdocs\ create a file called i.php
+
+Copy to this file:
+```php
+<?php
+phpinfo ();
+```
+
+### PHP 8 setup
+
+Open the php.ini file with any text editor, look for the line
+
+```;extension_dir = "ext"```
+
+replace it with
+
+```extension_dir = "C:\Server\bin\PHP\ext\"```
+
+```
+;extension=bz2
+;extension=curl
+;extension=ffi
+;extension=ftp
+;extension=fileinfo
+;extension=gd
+;extension=gettext
+;extension=gmp
+;extension=intl
+;extension=imap
+;extension=ldap
+;extension=mbstring
+;extension=exif      ; Must be after mbstring as it depends on it
+;extension=mysqli
+;extension=oci8_12c  ; Use with Oracle Database 12c Instant Client
+;extension=oci8_19  ; Use with Oracle Database 19 Instant Client
+;extension=odbc
+;extension=openssl
+;extension=pdo_firebird
+;extension=pdo_mysql
+;extension=pdo_oci
+;extension=pdo_odbc
+;extension=pdo_pgsql
+;extension=pdo_sqlite
+;extension=pgsql
+;extension=shmop
+```
+
+Replace it with
+
+```
+extension=bz2
+extension=curl
+extension=ffi
+extension=ftp
+extension=fileinfo
+extension=gd
+extension=gettext
+extension=gmp
+extension=intl
+extension=imap
+extension=ldap
+extension=mbstring
+extension=exif      ; Must be after mbstring as it depends on it
+extension=mysqli
+;extension=oci8_12c  ; Use with Oracle Database 12c Instant Client
+;extension=oci8_19  ; Use with Oracle Database 19 Instant Client
+extension=odbc
+extension=openssl
+;extension=pdo_firebird
+extension=pdo_mysql
+;extension=pdo_oci
+extension=pdo_odbc
+extension=pdo_pgsql
+extension=pdo_sqlite
+extension=pgsql
+extension=shmop
+```
+
+Save the file and restart Apache.
+
+## Installing and configuring phpMyAdmin
+
