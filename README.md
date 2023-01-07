@@ -1,6 +1,8 @@
 # php-mysql-server-setup
 Apache + PHP + MySQL + PHPMyAdmin server setup in windows 11
 
+[Ref: https://miloserdov.org/?p=7703](https://miloserdov.org/?p=7703)
+
 ## What is a web server for Windows
 The web server itself is Apache – it can process requests from the user and send him the requested files, such as static HTML pages, pictures, files with CSS and JavaScript. Since this functionality is usually not enough and most users need support for dynamically created pages, PHP is connected to Apache as a web server module for these purposes. To store data, one or another database management system (DBMS) is used, usually MySQL or MariaDB. The DBMS is not an Apache or PHP module, it is a separate network service to which various programs can connect, it is important for us that PHP can work with MySQL.
 
@@ -240,3 +242,142 @@ Save the file and restart Apache.
 
 ## Installing and configuring phpMyAdmin
 
+Copy the contents of the **phpMyAdmin-5.1.2-all-languages.zip** archive to the **c:\Server\data\htdocs** directory. Rename phpMyAdmin-5.1.2-all-languages to **phpmyadmin** (for brevity)
+
+In the directory **c:\Server\data\htdocs\phpmyadmin** create a file **config.inc.php** and copy it there:
+
+```php
+<?php
+ 
+/* Servers configuration */
+$i = 0;
+ 
+/* Server: localhost [1] */
+$i++;
+$cfg['Servers'][$i]['verbose'] = '';
+$cfg['Servers'][$i]['host'] = 'localhost';
+$cfg['Servers'][$i]['port'] = '';
+$cfg['Servers'][$i]['socket'] = '';
+$cfg['Servers'][$i]['connect_type'] = 'tcp';
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+$cfg['Servers'][$i]['user'] = 'root';
+$cfg['Servers'][$i]['password'] = '';
+$cfg['Servers'][$i]['nopassword'] = true;
+$cfg['Servers'][$i]['AllowNoPassword'] = true;
+ 
+/* End of servers configuration */
+ 
+$cfg['blowfish_secret'] = 'HACKWARE.RU ==== WRITE DOWN WHAT YOU WANT HERE';
+$cfg['DefaultLang'] = 'en';
+$cfg['ServerDefault'] = 1;
+$cfg['UploadDir'] = '';
+$cfg['SaveDir'] = '';
+ 
+?>
+```
+
+In the browser we type http://localhost/phpmyadmin/
+
+Enter root as the username. Leave the password field blank. If everything is done correctly, then everything should look like this:
+![image](https://user-images.githubusercontent.com/51959574/211142403-c160e4e8-afe1-42d8-aec7-902d42cb0d37.png)
+
+## Server usage and data backup
+
+In the directory **c:\Server\data\htdocs\\** create folders and files, for example:
+
+c:\Server\data\htdocs\test\ajax.php – this file, respectively, will be available at http://localhost/test/ajax.php, etc.
+To create a full backup of all sites and databases, just copy the C:\Server\data\ directory.
+
+Before updating modules, make a backup of the bin folder – in case of problems, it will be easy to roll back to previous versions.
+
+When you reinstall the server or upgrade it, you must reconfigure the configuration files. If you have copies of these files, then the process can be greatly accelerated. It is recommended to back up the following files:
+
+- c:\Server\bin\Apache24\conf\httpd.conf
+- c:\Server\bin\mysql-8.0\my.ini
+- c:\Server\bin\PHP\php.ini
+- c:\Server\data\htdocs\\phpmyadmin\config.inc.php
+
+All settings are stored in them.
+
+## PHP tweaking
+c:\Server\bin\PHP\php.ini
+
+```
+memory_limit = 128M
+post_max_size = 8M
+;default_charset = "UTF-8"	# sets the encoding (by default, the line is commented out)
+upload_max_filesize = 2M
+max_file_uploads = 20
+max_execution_time = 30
+```
+
+## Setting up the mail plug
+In the **C:\Server\bin\\** directory, create a new directory called **Sendmail**. Now in this directory create a **sendmail.php** file with the following content:
+
+```
+<?php
+/*  PHP.INI
+ *  [mail function]
+ *  ;SMTP = localhost
+ *  ;smtp_port = 25
+ *  ;sendmail_from = me@example.com
+ *  sendmail_path = php.exe sendmail.php --dir C:\mail --open
+ */
+  
+$is_windows = stristr(PHP_OS, 'WIN');
+$options = getopt("", ['open', 'prepend', 'file:', 'dir:']);
+$is_open = isset($options['open']);
+$is_prepend = isset($options['prepend']);
+$is_onefile = isset($options['file']);
+$mail_dir = isset($options['dir']) ? $options['dir'] : sys_get_temp_dir() . '/mail';
+$file_name = isset($options['file']) ? $options['file'] : mkname();
+$file_path = $mail_dir . '/' . $file_name;
+  
+if (!is_dir($mail_dir)) {
+    mkdir($mail_dir, 0777, TRUE);
+    if (!is_dir($mail_dir)) {
+        die('Mail folder [' . $mail_dir . '] not created');
+    }
+}
+  
+$stream = $is_onefile ? PHP_EOL . str_repeat("-=", 10) . date('Y-m-d H:i:s') . str_repeat("-=", 10) . PHP_EOL : '';
+while (false !== ($line = fgets(STDIN))) {
+    //$stream .= ($is_windows ? str_replace("\n", PHP_EOL, $line) : $line);
+    $stream .= $line;
+}
+  
+if ($is_prepend && file_exists($file_path)) {
+    $file_contents = file_get_contents($file_path);
+    $stream .= $file_contents;
+}
+  
+file_put_contents($file_path, $stream, $is_prepend ? 0 : FILE_APPEND);
+  
+if ($is_open && $is_windows) {
+    pclose(popen("start /B notepad " . $file_path, "r"));
+}
+  
+function mkname($i = 0) {
+    global $mail_dir;
+    $fn = 'mail_' . date('Y-m-d_H-i-s_') . $i . '.eml';
+    return file_exists($mail_dir . '/' . $fn) ? mkname( ++$i) : $fn;
+}
+```
+
+Open the PHP configuration file, it is located here **C:\Server\bin\PHP\php.ini**. And add one line there:
+```
+sendmail_path = "C:\Server\bin\PHP\php.exe C:\Server\bin\Sendmail\sendmail.php --dir C:\Server\bin\Sendmail\emails"
+```
+
+Save the file and restart the server. Great, now all sent emails will be stored in **C:\Server\bin\Sendmail\emails\\**
+
+## Setting up cURL in Apache Web Server on Windows
+
+For cURL to work in Apache on Windows you need:
+
+- 1) Be sure to add PHP directory to PATH (system environment variables). How to do this is said a little higher: https://miloserdov.org/?p=7703#12
+- 2) In the **C:\Server\bin\PHP\php.ini** file, the “**extension=curl**” line must be uncommented
+- 3) You need to download the file **https://curl.haxx.se/ca/cacert.pem**, then in the **C:\Server\\** folder create a new folder called certs and move it to this new folder (**C:\Server\certs\\**) downloaded file.
+- 4) In the file **C:\Server\bin\PHP\php.ini** find the line
+	```;curl.cainfo =``` And replace it with ```curl.cainfo = C:\Server\certs\cacert.pem```
+- 5) Restart the server.
