@@ -12,9 +12,12 @@ This is a step by step guide for installing a web server on Windows. Here it wil
 
 ## Download web server (Apache, MySQL, PHP and phpMyAdmin) for Windows 11
 
-Apache: https://www.apachelounge.com/download/
-PHP: https://windows.php.net/download/
-MySQL: https://dev.mysql.com/downloads/mysql/
+Apache: https://www.apachelounge.com/download
+
+PHP: https://windows.php.net/download
+
+MySQL: https://dev.mysql.com/downloads/mysql
+
 PHPMyAdmin: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zip
 
 Install the VC_redist.x64.exe file.
@@ -22,67 +25,84 @@ https://aka.ms/vs/17/release/VC_redist.x64.exe
 
 ## Create the structure of the web server
 
-  C:.
-	├───bin
-	│   ├───-Apache24
-	│   │   └───conf
-	│   ├───-mysql-8.0
-	│   ├───-PHP
-	│   └───-Sendmail
-	├───certs
-	├───data
-	│   ├───DB
-	│   │   └───data
-	│   └───htdocs
-	│       └───-phpmyadmin
-	└───manage
+C:.
+├───bin
+
+│   ├───-Apache24
+
+│   │   └───conf
+
+│   ├───-mysql-8.0
+
+│   ├───-PHP
+
+│   └───-Sendmail
+
+├───certs
+
+├───data
+
+│   ├───DB
+
+│   │   └───data
+
+│   └───htdocs
+
+│       └───-phpmyadmin
+
+└───manage
+	
   
 ## Installing Apache 2.4
 
-	- Unzip the contents of the downloaded archive (to be more precise, only the Apache24 directory) to C:\Server\bin\.
-	- Go to the c:\Server\bin\Apache24\conf\ directory and open the httpd.conf file with any text editor.
-	
-	Replace: 	Define SRVROOT "c:/Apache24"
-	with:	Define SRVROOT "c:/Server/bin/Apache24"
-	
-	replace:	#LoadModule rewrite_module modules/mod_rewrite.so
-	replace:	LoadModule rewrite_module modules/mod_rewrite.so
-	
-	replace:	#ServerName www.example.com:80
-	with:	ServerName localhost
+Unzip the contents of the downloaded archive (to be more precise, only the Apache24 directory) to C:\Server\bin\.
+Go to the c:\Server\bin\Apache24\conf\ directory and open the httpd.conf file with any text editor.
 
-	replace
-	```
-  # AllowOverride controls what directives may be placed in .htaccess files.
-	# It can be "All", "None", or any combination of the keywords:
-	#   AllowOverride FileInfo AuthConfig Limit
-	#
-	AllowOverride none
-  ```
+Replace: 	Define SRVROOT "c:/Apache24"
+with:	Define SRVROOT "c:/Server/bin/Apache24"
 
-	with
-  ```
-	# AllowOverride controls what directives may be placed in .htaccess files.
-	# It can be "All", "None", or any combination of the keywords:
-	#   AllowOverride FileInfo AuthConfig Limit
-	#
-	AllowOverride All
-  ```
+replace:	#LoadModule rewrite_module modules/mod_rewrite.so
+replace:	LoadModule rewrite_module modules/mod_rewrite.so
 
-	replace:	DocumentRoot "${SRVROOT}/htdocs"
-	with:	DocumentRoot "c:/Server/data/htdocs"
-	
-	replace:	<Directory "${SRVROOT}/htdocs">
-	with:	<Directory "c:/Server/data/htdocs">
+replace:	#ServerName www.example.com:80
+with:	ServerName localhost
 
-	replace:	DirectoryIndex index.html
-	with:	DirectoryIndex index.php index.html index.htm
-	
-	That's it, Apache setup is complete!
-	
-	-> Win+x
-		Windows Terminal (Admin)
-		
-	```c:\Server\bin\Apache24\bin\httpd.exe -k install```
-  
-	```c:\Server\bin\Apache24\bin\httpd.exe -k start```
+replace
+```
+# AllowOverride controls what directives may be placed in .htaccess files.
+# It can be "All", "None", or any combination of the keywords:
+#   AllowOverride FileInfo AuthConfig Limit
+#
+AllowOverride none
+```
+
+with
+```
+# AllowOverride controls what directives may be placed in .htaccess files.
+# It can be "All", "None", or any combination of the keywords:
+#   AllowOverride FileInfo AuthConfig Limit
+#
+AllowOverride All
+```
+
+replace:	DocumentRoot "${SRVROOT}/htdocs"
+with:	DocumentRoot "c:/Server/data/htdocs"
+
+replace:	<Directory "${SRVROOT}/htdocs">
+with:	<Directory "c:/Server/data/htdocs">
+
+replace:	DirectoryIndex index.html
+with:	DirectoryIndex index.php index.html index.htm
+
+That's it, Apache setup is complete!
+
+-> Win+x
+	Windows Terminal (Admin)
+
+```
+c:\Server\bin\Apache24\bin\httpd.exe -k install
+```
+
+```
+c:\Server\bin\Apache24\bin\httpd.exe -k start
+```
