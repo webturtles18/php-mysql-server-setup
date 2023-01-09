@@ -15,10 +15,13 @@ This is a step by step guide for installing a web server on Windows. Here it wil
 ## Download web server (Apache, MySQL, PHP and phpMyAdmin) for Windows 11
 
 Apache: https://www.apachelounge.com/download
+![image](https://user-images.githubusercontent.com/51959574/211142948-a5f4afc0-01b3-4be4-8237-1f8c8b261264.png)
 
 PHP: https://windows.php.net/download
+![image](https://user-images.githubusercontent.com/51959574/211142952-1cc4ffa5-10ce-45b8-a494-518ed3920d46.png)
 
 MySQL: https://dev.mysql.com/downloads/mysql
+![image](https://user-images.githubusercontent.com/51959574/211142962-4d09ae9a-4080-46fe-8154-c0416bf93113.png)
 
 PHPMyAdmin: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zip
 
@@ -26,35 +29,22 @@ Install the VC_redist.x64.exe file.
 https://aka.ms/vs/17/release/VC_redist.x64.exe
 
 ## Create the structure of the web server
-
+```
 C:.
-
 ├───bin
-
 │   ├───-Apache24
-
 │   │   └───conf
-
 │   ├───-mysql-8.0
-
 │   ├───-PHP
-
 │   └───-Sendmail
-
 ├───certs
-
 ├───data
-
 │   ├───DB
-
 │   │   └───data
-
 │   └───htdocs
-
 │       └───-phpmyadmin
-
 └───manage
-	
+```
   
 ## Installing Apache 2.4
 
@@ -110,6 +100,11 @@ c:\Server\bin\Apache24\bin\httpd.exe -k install
 ```
 c:\Server\bin\Apache24\bin\httpd.exe -k start
 ```
+![image](https://user-images.githubusercontent.com/51959574/211143051-fac96565-0630-4b13-8997-dda76d650985.png)
+
+Now in the browser we type http://localhost/ and we see the following:
+![image](https://user-images.githubusercontent.com/51959574/211143075-f9e5b772-b056-4dc2-9b31-f5d5d7ac8471.png)
+
 
 ## Installing and configuring MySQL 8.0
 
@@ -140,6 +135,7 @@ C:\Server\bin\mysql-8.0\bin\mysqld --install
 ```
 net start mysql
 ```
+![image](https://user-images.githubusercontent.com/51959574/211143095-9bac056c-de25-44d4-a0aa-e7ee13d26281.png)
 
 At the end of this process, automatically generated files should appear in the C:\Server\data\DB\data\ directory:
 
@@ -156,6 +152,8 @@ PHPIniDir "C:/Server/bin/PHP"
 AddHandler application/x-httpd-php .php
 LoadModule php_module "C:/Server/bin/php/php8apache2_4.dll"
 ```
+![image](https://user-images.githubusercontent.com/51959574/211143143-9b69b010-2573-448d-9c7d-90602e730985.png)
+
 
 Then restart Apache
 ```c:\Server\bin\Apache24\bin\httpd.exe -k restart```
@@ -375,9 +373,16 @@ Save the file and restart the server. Great, now all sent emails will be stored 
 
 For cURL to work in Apache on Windows you need:
 
-- 1) Be sure to add PHP directory to PATH (system environment variables). How to do this is said a little higher: https://miloserdov.org/?p=7703#12
-- 2) In the **C:\Server\bin\PHP\php.ini** file, the “**extension=curl**” line must be uncommented
-- 3) You need to download the file **https://curl.haxx.se/ca/cacert.pem**, then in the **C:\Server\\** folder create a new folder called certs and move it to this new folder (**C:\Server\certs\\**) downloaded file.
-- 4) In the file **C:\Server\bin\PHP\php.ini** find the line
+- Be sure to add PHP directory to PATH (system environment variables). How to do this is said a little higher: https://miloserdov.org/?p=7703#12
+- In the **C:\Server\bin\PHP\php.ini** file, the “**extension=curl**” line must be uncommented
+- You need to download the file **https://curl.haxx.se/ca/cacert.pem**, then in the **C:\Server\\** folder create a new folder called certs and move it to this new folder (**C:\Server\certs\\**) downloaded file.
+- In the file **C:\Server\bin\PHP\php.ini** find the line
 	```;curl.cainfo =``` And replace it with ```curl.cainfo = C:\Server\certs\cacert.pem```
-- 5) Restart the server.
+- Restart the server.
+
+## How to back up Apache data (websites and databases) on Windows
+
+- Stop MySQL ```net stop mysql```
+- Now just copy the folder C:\Server\data\ to any safe place.
+- Start the MySQL ```net start mysql```
+- 
